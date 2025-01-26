@@ -1,0 +1,155 @@
+---
+title: "Penguins Dataset Analysis"
+author: "Sourena Mohit"
+date: "`r Sys.Date()`"
+output: html_notebook
+---
+
+# **Introduction**
+The `palmerpenguins` dataset provides information about three species of penguins from the Palmer Archipelago.  
+In this analysis, we will:
+- Load the dataset  
+- Inspect the data structure  
+- Perform basic exploratory data analysis (EDA)  
+
+---
+
+## **1. Load the Dataset**
+```{r setup, message=FALSE, warning=FALSE}
+# install.packages("palmerpenguins")  # Install package (only needed once)
+library(palmerpenguins)  # Load the package
+data("penguins")  # Load the dataset
+```
+
+---
+
+## **2. Data Inspection & Summary**
+```{r data-inspection}
+# View first 10 rows
+head(penguins, 10)
+
+# Summary statistics
+summary(penguins)
+
+# List all variables (column names)
+names(penguins)
+
+# Count the number of observations (rows)
+nrow(penguins)
+
+# Count the number of variables (columns)
+ncol(penguins)
+
+# Get dataset dimensions (rows & columns)
+dim(penguins)
+
+# Check data types of each column
+str(penguins)
+
+# Count unique values in categorical columns
+table(penguins$species)
+table(penguins$sex)
+table(penguins$island)
+```
+
+---
+
+## **3. Handling Missing Values & Data Cleaning**
+```{r missing-values}
+# Identify and count rows with missing values
+sum(!complete.cases(penguins))  # Total missing rows
+
+# Check missing values per column
+colSums(is.na(penguins))
+
+# Remove rows with missing values
+clean_penguins <- na.omit(penguins)
+
+# Verify changes
+nrow(penguins)       # Original dataset size
+nrow(clean_penguins)  # Size after removing missing values
+```
+
+---
+
+## **4. Basic Statistics & Data Manipulation**
+```{r statistics}
+# Calculate mean and median of flipper length column (handling missing values)
+mean(penguins$flipper_length_mm, na.rm = TRUE)
+median(penguins$flipper_length_mm, na.rm = TRUE)
+
+# Filter penguins of species "Adelie" with flipper length > 200mm
+filtered_penguins <- subset(penguins, species == "Adelie" & flipper_length_mm > 200)
+
+# Create a new BMI column (Body Mass Index based on flipper length)
+penguins$BMI <- penguins$body_mass_g / (penguins$flipper_length_mm ^ 2)
+clean_penguins$BMI <- clean_penguins$body_mass_g / (clean_penguins$flipper_length_mm ^ 2)
+
+# Display first 10 BMI values
+head(penguins$BMI, 10)
+head(clean_penguins$BMI, 10)
+```
+**Explanation:**
+- `mean()` calculates the average value of a numeric column, and `na.rm = TRUE` ensures missing values are ignored.
+- `median()` finds the middle value, which is useful for skewed distributions.
+- `subset()` is used to filter rows based on conditions (species is "Adelie" and flipper length > 200 mm).
+- `BMI` (Body Mass Index) is calculated as `body_mass_g / flipper_length_mm^2`, creating a new column.
+
+---
+
+## **5. Data Visualization**
+```{r visualization}
+# Histogram of Body Mass
+hist(penguins$body_mass_g, main = "Penguin Body Mass Distribution", xlab = "Body Mass (g)", col = "lightblue")
+hist(clean_penguins$body_mass_g, main = "Cleaned Penguin Body Mass Distribution", xlab = "Body Mass (g)", col = "lightgreen")
+
+# Boxplot of Flipper Length
+boxplot(penguins$flipper_length_mm, main = "Flipper Length Distribution", ylab = "Flipper Length (mm)", col = "orange")
+
+# Scatter Plot: Flipper Length vs. Body Mass
+plot(
+  penguins$flipper_length_mm, penguins$body_mass_g,
+  main = "Flipper Length vs Body Mass",
+  xlab = "Flipper Length (mm)", ylab = "Body Mass (g)",
+  col = "blue", pch = 16
+)
+
+# Bar Plot: Count of Penguins by Species
+barplot(table(penguins$species), main = "Count of Penguins by Species", ylab = "Count", col = c("lightblue", "lightgreen", "pink"))
+```
+---
+
+## **6. Data Grouping and Summarization**
+```{r grouping}
+# Aggregate function: Compute mean flipper length per species
+aggregate(flipper_length_mm ~ species, data = penguins, mean , na.rm = TRUE)
+
+# Count number of penguins per species-sex combination
+table(penguins$species , penguins$sex)
+
+# Summarize multiple variables (flipper length and body mass) per species
+aggregate(cbind(flipper_length_mm, body_mass_g) ~ species, data = penguins , 
+          function(x) c(mean = mean(x, na.rm = TRUE) , sd = sd(x , na.rm = TRUE)))
+```
+**Explanation:**
+- `aggregate()` allows performing grouped operations. Here, we compute mean values per species.
+- `table()` is used to count occurrences of categorical values (species-sex combination).
+- `cbind()` combines multiple variables to allow summary operations on both at the same time.
+
+---
+## **7. Data Analysis**
+```{r DA}
+# Variance of flipper length
+var(penguins$flipper_length_mm, na.rm = TRUE)
+var(clean_penguins$body_mass_g)
+
+# Covariance between flipper length and body mass
+cov(penguins$flipper_length_mm, penguins$body_mass_g, use = "complete.obs")
+
+# Correlation between flipper length and body mass
+cor(penguins$flipper_length_mm, penguins$body_mass_g, use = "complete.obs")
+```
+**Explanation:**
+- `var()` calculates variance, which measures the spread of data.
+- `cov()` measures the direction of linear relationships between two variables.
+- `cor()` calculates correlation, which standardizes covariance and ranges from -1 to 1, showing the strength and direction of a relationship.
