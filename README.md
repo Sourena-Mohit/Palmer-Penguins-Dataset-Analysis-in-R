@@ -16,7 +16,7 @@ This project analyzes the `palmerpenguins` dataset using R, performing explorato
 1. Clone the repository:
    ```bash
    git clone https://github.com/Sourena-Mohit/Palmer-Penguins-Dataset-Analysis-in-R.git
-   cd penguins-analysis
+   cd Palmer-Penguins-Dataset-Analysis-in-R
    ```
 2. Open R and run:
    ```r
